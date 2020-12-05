@@ -14,21 +14,30 @@ public final class VillagerInventory extends JavaPlugin {
     HashMap<UUID, Villager> invMap;
 
     Material interactMaterial = Material.STICK;
+    boolean dropOnDeath = true;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
-        getServer().getConsoleSender().sendMessage("Villager Inventory Plugin Version 1.0");
+        getServer().getConsoleSender().sendMessage("Villager Inventory Plugin Version 2.0");
         getServer().getConsoleSender().sendMessage("Villager Inventory Plugin Starting...");
 
-        String key = "Interactive-Material";
-        if (!getConfig().contains(key) || Material.matchMaterial(getConfig().getString(key)) == null)
-        {
-            getConfig().set(key, Material.STICK.toString());
+        String key_material = "Interactive-Material";
+        String key_dropOnDeath ="Drop-On-Death";
+        if (!getConfig().contains(key_material) || Material.matchMaterial(getConfig().getString(key_material)) == null) {
+            getConfig().set(key_material, interactMaterial.toString());
             saveConfig();
-        }else{
-            interactMaterial = Material.matchMaterial(getConfig().getString(key));
+        }else {
+            interactMaterial = Material.matchMaterial(getConfig().getString(key_material));
         }
+
+        if(!getConfig().contains(key_dropOnDeath)) {
+            getConfig().set(key_dropOnDeath, dropOnDeath);
+            saveConfig();
+        }else {
+            dropOnDeath = getConfig().getBoolean(key_dropOnDeath);
+        }
+
 
         eventHandler = new VillagerInvEventHandler(this);
         getServer().getPluginManager().registerEvents(eventHandler, this);

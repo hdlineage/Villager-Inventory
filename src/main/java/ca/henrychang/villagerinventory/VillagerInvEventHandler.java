@@ -2,13 +2,10 @@ package ca.henrychang.villagerinventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -22,6 +19,19 @@ public class VillagerInvEventHandler implements Listener {
 
     public VillagerInvEventHandler(VillagerInventory plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void onVillagerDied(EntityDeathEvent e) {
+        if (!plugin.dropOnDeath)
+            return;
+        LivingEntity ent = e.getEntity();
+        if (!(ent instanceof Villager))
+            return;
+        Villager v = (Villager) ent;
+        for (ItemStack is : v.getInventory().getContents())
+            if (is != null)
+                v.getWorld().dropItemNaturally(v.getLocation(), is);
     }
 
     @EventHandler
