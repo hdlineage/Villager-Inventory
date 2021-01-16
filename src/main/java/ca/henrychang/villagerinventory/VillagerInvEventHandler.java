@@ -56,7 +56,13 @@ public class VillagerInvEventHandler implements Listener {
 
         e.setCancelled(true);
         Inventory i = v.getInventory();
-        String ni_title = v.getName()+"'s Inventory ("+v.getProfession()+")";
+
+        String ni_title;
+        if(v.getCustomName() != null)
+            ni_title = v.getName()+"'s Inventory ("+v.getProfession()+")";
+        else
+            ni_title = v.getName()+"'s Inventory";
+
         Inventory ni = Bukkit.createInventory(player, 9, ni_title);
         for (ItemStack item : i.getContents()){
             if (item != null)
