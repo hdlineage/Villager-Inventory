@@ -19,7 +19,7 @@ public final class VillagerInventory extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        getServer().getConsoleSender().sendMessage("Villager Inventory Plugin Version 2.0");
+        getServer().getConsoleSender().sendMessage("Villager Inventory Plugin Version 2.1");
         getServer().getConsoleSender().sendMessage("Villager Inventory Plugin Starting...");
 
         String key_material = "Interactive-Material";

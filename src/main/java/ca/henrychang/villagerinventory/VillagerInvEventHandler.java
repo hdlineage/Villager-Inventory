@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+
 public class VillagerInvEventHandler implements Listener {
     VillagerInventory plugin;
 
@@ -48,10 +49,15 @@ public class VillagerInvEventHandler implements Listener {
         if(villager == null || villager.getType() != EntityType.VILLAGER)
             return;
 
-        e.setCancelled(true);
         Villager v = (Villager) villager;
+
+        if(v.isLeashed())
+            return;
+
+        e.setCancelled(true);
         Inventory i = v.getInventory();
-        Inventory ni = Bukkit.createInventory(player, 9, "Villager Inventory");
+        String ni_title = v.getName()+"'s Inventory ("+v.getProfession()+")";
+        Inventory ni = Bukkit.createInventory(player, 9, ni_title);
         for (ItemStack item : i.getContents()){
             if (item != null)
                 ni.addItem(item);
@@ -59,6 +65,8 @@ public class VillagerInvEventHandler implements Listener {
         //Fill last slot
         ItemStack lastItem = new ItemStack(Material.BARRIER);
         ni.setItem(8, lastItem);
+        if (v.isSleeping())
+            v.wakeup();
         player.openInventory(ni);
         plugin.invMap.put(player.getUniqueId(), v);
     }
@@ -66,20 +74,21 @@ public class VillagerInvEventHandler implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent evt) {
         Inventory v = evt.getInventory();
+        HumanEntity player = evt.getWhoClicked();
 
         if(v == null)
             return;
 
-        if(v.getSize() != 9 || v.getType() != InventoryType.CHEST || evt.getView().getTitle() != "Villager Inventory")
+        if(v.getSize() != 9 || v.getType() != InventoryType.CHEST || !plugin.invMap.containsKey(player.getUniqueId()))
             return;
 
-        HumanEntity human = evt.getWhoClicked();
+
         final int slot = evt.getSlot();
 
         if(slot > 8 || slot < 0)
             return;
 
-        Villager villager = plugin.invMap.get(human.getUniqueId());
+        Villager villager = plugin.invMap.get(player.getUniqueId());
         if(villager == null)
             return;
 
@@ -89,40 +98,43 @@ public class VillagerInvEventHandler implements Listener {
                 return;
             }
 
-        Bukkit.getScheduler().runTask(plugin, new InvUpdater(v, villager.getInventory(), (Player) human));
+        Bukkit.getScheduler().runTask(plugin, new InvUpdater(v, villager.getInventory(), (Player) player));
     }
 
     @EventHandler
     public void onDrag(InventoryDragEvent evt) {
         Inventory v = evt.getInventory();
+        HumanEntity player = evt.getWhoClicked();
+
         if(v == null)
             return;
-        if(v.getSize() != 9 || v.getType() != InventoryType.CHEST || evt.getView().getTitle() != "Villager Inventory")
+        if(v.getSize() != 9 || v.getType() != InventoryType.CHEST || !plugin.invMap.containsKey(player.getUniqueId()))
             return;
-        HumanEntity human = evt.getWhoClicked();
-        Villager villager = plugin.invMap.get(human.getUniqueId());
+        Villager villager = plugin.invMap.get(player.getUniqueId());
         if(villager == null)
             return;
 
-        Bukkit.getScheduler().runTask(plugin, new InvUpdater(v, villager.getInventory(), (Player) human));
+        Bukkit.getScheduler().runTask(plugin, new InvUpdater(v, villager.getInventory(), (Player) player));
     }
 
 
     @EventHandler
     public void onClose(InventoryCloseEvent evt){
         Inventory v = evt.getInventory();
+        HumanEntity player = evt.getPlayer();
+
         if(v == null)
             return;
-        if(v.getSize() != 9 || v.getType() != InventoryType.CHEST || evt.getView().getTitle() != "Villager Inventory")
+        if(v.getSize() != 9 || v.getType() != InventoryType.CHEST || !plugin.invMap.containsKey(player.getUniqueId()))
             return;
-        HumanEntity human = evt.getPlayer();
         if(evt.getPlayer() == null)
             return;
-        Villager villager = plugin.invMap.get(human.getUniqueId());
+
+        Villager villager = plugin.invMap.get(player.getUniqueId());
         if(villager == null)
             return;
 
-        Bukkit.getScheduler().runTask(plugin, new InvUpdater(v, villager.getInventory(), (Player) human));
+        Bukkit.getScheduler().runTask(plugin, new InvUpdater(v, villager.getInventory(), (Player) player));
         plugin.invMap.remove(evt.getPlayer().getUniqueId());
     }
 
