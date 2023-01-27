@@ -1,7 +1,7 @@
 name: VillagerInventory
 version: ${project.version}
 main: ca.henrychang.villagerinventory.VillagerInventory
-api-version: 1.16
+api-version: 1.19
 authors: [ hdlineage ]
 description: Allows players to interact with villager inventory
 website: henrychang.ca
